@@ -14,7 +14,7 @@ public class vlsm extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Calculadora VLSM");
         var root = new VentanaVLSM();
-        Scene scene = new Scene(root, 500, 450);
+        Scene scene = new Scene(root, 500, 470);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

@@ -65,7 +65,7 @@ public class VentanaVLSM extends ScrollPane {
 
         //Creditos Label
         Font font = Font.font("Helvetica Neue", FontWeight.BOLD, FontPosture.ITALIC, 14);
-        Label creditLabel = createLabel("Hecho por: MORALES ROMERO JULIO ALDAIR,\n"+"CORTES CARRILLO, EDGAR YAEL",Color.BLACK);
+        Label creditLabel = createLabel("Hecho por: MORALES ROMERO JULIO ALDAIR,\n"+"CORTES CARRILLO, EDGAR YAEL\n"+"FLORES MORA, MIGUEL ANGEL",Color.BLACK);
         creditLabel.setFont(font);
 
         // Configurar el diseño de la interfaz
