@@ -26,13 +26,15 @@ public class VentanaVLSM extends Pane {
     private TextArea resultArea;
 
     public VentanaVLSM() {
-        // Crear los elementos de la interfaz
+        // TEXTFIELD DE LA DIRECCION IP
         ipField = new TextField();
         ipField.setPromptText("10.0.0.0 /8");
 
         subnetsField = new TextField();
         subnetsField.setPromptText("Ingrese la cantidad de subredes");
         subnetsField.setOnAction(e -> updateHostFields());
+
+        //
         subnetsField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -47,8 +49,11 @@ public class VentanaVLSM extends Pane {
         Button calculateButton = new Button("Calcular");
         calculateButton.setOnAction(e -> calculateSubnets());
 
+
+        // TEXT AREA RESULTADOS
         resultArea = new TextArea();
         resultArea.setEditable(false);
+        resultArea.getStyleClass().add("text-area");
 
         // Desactivar el Focus al iniciar
         ipField.setFocusTraversable(false);
@@ -64,9 +69,10 @@ public class VentanaVLSM extends Pane {
                 createLabel("Direccion IP Principal con Mascara :", Color.BLACK), ipField,
                 createLabel("Numero de subredes a crear:", Color.BLACK), subnetsField,
                 createLabel("Hosts por subred:", Color.BLACK), hostsBox,
-                calculateButton, resultArea
+                calculateButton, resultArea,
+                createLabel("Hecho por MORALES ROMERO, JULIO ALDAIR, CORTES CARRILLO, EDGAR YAEL",Color.BLACK)
         );
-        setBackground(new Background(new BackgroundFill(Color.rgb(125, 125, 125), null, Insets.EMPTY)));
+        setBackground(new Background(new BackgroundFill(Color.rgb(178, 178, 178), null, null)));
 
 
         // Agregar el diseño a este Pane
