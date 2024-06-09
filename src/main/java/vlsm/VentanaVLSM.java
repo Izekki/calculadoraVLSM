@@ -4,15 +4,17 @@ import VlsmApp.subred;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 
 import java.util.Arrays;
 import java.util.StringTokenizer;
@@ -26,9 +28,18 @@ public class VentanaVLSM extends Pane {
     private TextArea resultArea;
 
     public VentanaVLSM() {
+
+        ImageView imageView = new ImageView();
+        Image image = new Image("uvicon.png");
+
+        imageView.setImage(image);
+
+
         // TEXTFIELD DE LA DIRECCION IP
         ipField = new TextField();
         ipField.setPromptText("10.0.0.0 /8");
+
+
 
         subnetsField = new TextField();
         subnetsField.setPromptText("Ingrese la cantidad de subredes");
@@ -53,7 +64,6 @@ public class VentanaVLSM extends Pane {
         // TEXT AREA RESULTADOS
         resultArea = new TextArea();
         resultArea.setEditable(false);
-        resultArea.getStyleClass().add("text-area");
 
         // Desactivar el Focus al iniciar
         ipField.setFocusTraversable(false);
@@ -61,6 +71,9 @@ public class VentanaVLSM extends Pane {
         calculateButton.setFocusTraversable(false);
         resultArea.setFocusTraversable(false);
 
+        Font font = Font.font("Helvetica Neue", FontWeight.BOLD, FontPosture.ITALIC, 14);
+        Label creditLabel = createLabel("Hecho por MORALES ROMERO, JULIO ALDAIR, CORTES CARRILLO, EDGAR YAEL",Color.BLACK);
+        creditLabel.setFont(font);
 
         // Configurar el diseño de la interfaz
         VBox layout = new VBox(10);
@@ -69,8 +82,8 @@ public class VentanaVLSM extends Pane {
                 createLabel("Direccion IP Principal con Mascara :", Color.BLACK), ipField,
                 createLabel("Numero de subredes a crear:", Color.BLACK), subnetsField,
                 createLabel("Hosts por subred:", Color.BLACK), hostsBox,
-                calculateButton, resultArea,
-                createLabel("Hecho por MORALES ROMERO, JULIO ALDAIR, CORTES CARRILLO, EDGAR YAEL",Color.BLACK)
+                calculateButton, resultArea,creditLabel
+
         );
         setBackground(new Background(new BackgroundFill(Color.rgb(178, 178, 178), null, null)));
 
@@ -79,8 +92,10 @@ public class VentanaVLSM extends Pane {
         getChildren().add(layout);
     }
     private Label createLabel(String text, Color color) {
+        Font font = Font.font("Arial",FontWeight.BOLD,14);
         Label label = new Label(text);
         label.setTextFill(color);
+        label.setFont(font);
         return label;
     }
     private void updateHostFields() {
