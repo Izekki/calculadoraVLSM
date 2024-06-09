@@ -5,7 +5,6 @@ module com.personalprojects.calculadoravlsm {
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
 
-    opens vlsm to javafx.fxml;
+    opens VlsmApp to javafx.fxml;
     exports VlsmApp;
-    exports vlsm;
 }

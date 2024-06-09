@@ -1,16 +1,10 @@
-package vlsm;
+package VlsmApp;
 
-import VlsmApp.subred;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -20,7 +14,7 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 
-public class VentanaVLSM extends Pane {
+public class VentanaVLSM extends ScrollPane {
 
     private TextField ipField;
     private TextField subnetsField;
@@ -28,28 +22,20 @@ public class VentanaVLSM extends Pane {
     private TextArea resultArea;
 
     public VentanaVLSM() {
-
-        ImageView imageView = new ImageView();
-        Image image = new Image("uvicon.png");
-
-        imageView.setImage(image);
-
-
-        // TEXTFIELD DE LA DIRECCION IP
+        //TextFields
         ipField = new TextField();
         ipField.setPromptText("10.0.0.0 /8");
 
-
-
         subnetsField = new TextField();
         subnetsField.setPromptText("Ingrese la cantidad de subredes");
-        subnetsField.setOnAction(e -> updateHostFields());
-
-        //
+        subnetsField.setOnAction(e -> actualizarCantidadHost());
         subnetsField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                updateHostFields();
+                // Verificar si el campo está vacío antes de llamar a updateHostFields()
+                if (!newValue.isEmpty()) {
+                    actualizarCantidadHost();
+                }
             }
         });
 
@@ -57,22 +43,29 @@ public class VentanaVLSM extends Pane {
         hostsBox = new VBox();
         hostsBox.setSpacing(5);
 
-        Button calculateButton = new Button("Calcular");
-        calculateButton.setOnAction(e -> calculateSubnets());
+        HBox HBotonones = new HBox();
+        HBotonones.setSpacing(5);
 
+        Button calcularBoton = new Button("Calcular");
+        calcularBoton.setOnAction(e -> calcularSubneteo());
 
-        // TEXT AREA RESULTADOS
+        Button limpiarBoton = new Button("Limpiar");
+        limpiarBoton.setOnAction(e -> clearFields());
+
+        HBotonones.getChildren().addAll(calcularBoton,limpiarBoton);
+        //TextArea.
         resultArea = new TextArea();
         resultArea.setEditable(false);
 
         // Desactivar el Focus al iniciar
         ipField.setFocusTraversable(false);
         subnetsField.setFocusTraversable(false);
-        calculateButton.setFocusTraversable(false);
+        calcularBoton.setFocusTraversable(false);
         resultArea.setFocusTraversable(false);
 
+        //Creditos Label
         Font font = Font.font("Helvetica Neue", FontWeight.BOLD, FontPosture.ITALIC, 14);
-        Label creditLabel = createLabel("Hecho por MORALES ROMERO, JULIO ALDAIR, CORTES CARRILLO, EDGAR YAEL",Color.BLACK);
+        Label creditLabel = createLabel("Hecho por: MORALES ROMERO JULIO ALDAIR,\n"+"CORTES CARRILLO, EDGAR YAEL",Color.BLACK);
         creditLabel.setFont(font);
 
         // Configurar el diseño de la interfaz
@@ -82,14 +75,14 @@ public class VentanaVLSM extends Pane {
                 createLabel("Direccion IP Principal con Mascara :", Color.BLACK), ipField,
                 createLabel("Numero de subredes a crear:", Color.BLACK), subnetsField,
                 createLabel("Hosts por subred:", Color.BLACK), hostsBox,
-                calculateButton, resultArea,creditLabel
+                HBotonones, resultArea,creditLabel
 
         );
         setBackground(new Background(new BackgroundFill(Color.rgb(178, 178, 178), null, null)));
 
 
         // Agregar el diseño a este Pane
-        getChildren().add(layout);
+        setContent(layout);
     }
     private Label createLabel(String text, Color color) {
         Font font = Font.font("Arial",FontWeight.BOLD,14);
@@ -98,12 +91,13 @@ public class VentanaVLSM extends Pane {
         label.setFont(font);
         return label;
     }
-    private void updateHostFields() {
+    private void actualizarCantidadHost() {
         hostsBox.getChildren().clear();
         int numSubnets;
         try {
             numSubnets = Integer.parseInt(subnetsField.getText());
         } catch (NumberFormatException e) {
+            showAlert("Número de subred inválido");
             return;
         }
         for (int i = 0; i < numSubnets; i++) {
@@ -113,13 +107,13 @@ public class VentanaVLSM extends Pane {
         }
     }
 
-    private void calculateSubnets() {
+    private void calcularSubneteo() {
         String mainIp = ipField.getText();
         int numSubnets;
         try {
             numSubnets = Integer.parseInt(subnetsField.getText());
         } catch (NumberFormatException e) {
-            resultArea.setText("Numero invalido de subred");
+            showAlert("Número inválido de subredes");
             return;
         }
         int[] nhosts = new int[numSubnets];
@@ -129,11 +123,11 @@ public class VentanaVLSM extends Pane {
                 nhosts[i] = Integer.parseInt(hostField.getText());
             }
         } catch (NumberFormatException e) {
-            resultArea.setText("Recuento de hosts no válido en uno de los campos");
+            showAlert("Recuento de hosts no válido en uno de los campos");
             return;
         }
 
-        // Process IP and subnets
+        // Proceso IP y subneteo
         StringTokenizer tokenizer = new StringTokenizer(mainIp, ". /");
         int[] dirIp = new int[5];
         int i;
@@ -143,20 +137,20 @@ public class VentanaVLSM extends Pane {
                 aux *= -1;
             }
             if (aux > 255) {
-                resultArea.setText("Error: Un octeto excede el número máximo");
+                showAlert("Error: Un octeto excede el número máximo");
                 return;
             }
             dirIp[i] = aux;
         }
         if (i == 4) {
-            resultArea.setText("Error: debe ingresar la máscara /máscara u olvidó un octeto");
+            showAlert("Error: debe ingresar la máscara (/x)");
             return;
         } else if (i != 5) {
-            resultArea.setText("Error: la dirección IP es inválida!!!");
+            showAlert("Error: la dirección IP es inválida!!!");
             return;
         }
         if (dirIp[4] == 0 || dirIp[4] > 31) {
-            resultArea.setText("Error: Máscara inválida");
+            showAlert("Error: Máscara inválida");
             return;
         }
 
@@ -188,33 +182,51 @@ public class VentanaVLSM extends Pane {
             hostbits[j] = (int) bitshost;
             dirsRequeridas += nhosts[j];
             if (dirsNecesarias > nDirsPrincipal) {
-                resultArea.setText("ERROR: no hay suficientes direcciones");
+                showAlert("ERROR: no hay suficientes direcciones");
                 return;
             }
             dirsNecesarias += Math.pow(2, bitshost);
             redes[j] = new subred(IpVa, 32 - hostbits[j]);
             IpVa = redes[j].getBroadcast() + 1;
 
+            //10.0.0.0/8
             subred elem = redes[j];
-            result.append("Subred ").append(j + 1).append("\n\tHost requeridos: ").append(nhosts[j]).append("\n\tSe pueden ubicar: ")
+            result.append("========================================================\n")
+                    .append("Subred N°").append(j + 1)
+                    .append("\n\tHost requeridos: ").append(nhosts[j]).append("\n\tHost disponibles: ")
                     .append((int) (Math.pow(2, hostbits[j]) - 2)).append("\n\tDirección de subred: ")
-                    .append(mostrarIp2(elem.getIpRed())).append("\n\tMáscara de ").append(elem.getNmasc()).append(": ")
-                    .append(mostrarIp2(elem.getMascara())).append("\n\tRango asignable: ")
-                    .append(mostrarIp2(elem.getIpRed() + 1)).append(" - ")
+                    .append(mostrarIp2(elem.getIpRed())).append("\n\tMáscara de /").append(elem.getNmasc()).append(": ")
+                    .append(mostrarIp2(elem.getMascara())).append("\n\tRango de subredes asignadas:")
+                    .append("\n\tPrimera Utilizable:")
+                    .append(mostrarIp2(elem.getIpRed() + 1))
+                    .append("\n\tUltima Utilizable:")
                     .append(mostrarIp2(elem.getBroadcast() - 1)).append("\n\tBroadcast: ")
-                    .append(mostrarIp2(elem.getBroadcast())).append("\n\n");
+                    .append(mostrarIp2(elem.getBroadcast())).append("\n\n")
+                    .append("========================================================\n");
+
         }
-
-        result.append("Número de direcciones IP en la red principal: ").append(nDirsPrincipal).append("\n")
-                .append("Se requerían: ").append(dirsRequeridas).append("\n")
-                .append("Estan disponibles para hosts: ").append(dirsNecesarias - (nhosts.length * 2)).append("\n")
-                .append("De todas las direcciones de la principal se está usando el: ")
-                .append(((float) dirsNecesarias / (float) nDirsPrincipal) * 100).append("%\n")
-                .append("De las direcciones disponibles (en todas las subredes), se usarán (con los requeridos): ")
-                .append(((float) dirsRequeridas / (float) dirsNecesarias) * 100).append("%\n");
-
+        String claseRed = determinarClaseRed(dirIp);
+        result.append("Clase de la red principal: ").append(claseRed).append("\n")
+                .append("Total de posibles direcciones IP en la red principal: ").append(nDirsPrincipal).append("\n")
+                .append("El numero total de host ocupados: ").append(dirsRequeridas).append("\n");
         resultArea.setText(result.toString());
     }
+
+    private String determinarClaseRed(int[] dirIp) {
+        int primerOcteto = dirIp[0];
+        if (primerOcteto >= 0 && primerOcteto <= 127) {
+            return "Clase A";
+        } else if (primerOcteto >= 128 && primerOcteto <= 191) {
+            return "Clase B";
+        } else if (primerOcteto >= 192 && primerOcteto <= 223) {
+            return "Clase C";
+        } else if (primerOcteto >= 224 && primerOcteto <= 239) {
+            return "Clase D (Multicast)";
+        } else {
+            return "Clase E (Experimental)";
+        }
+    }
+
 
     private int armarInt(int[] arr) {
         int x;
@@ -251,5 +263,19 @@ public class VentanaVLSM extends Pane {
     private String mostrarIp2(int x) {
         int[] arr = desArmarInt(x);
         return arr[0] + "." + arr[1] + "." + arr[2] + "." + arr[3];
+    }
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void clearFields() {
+        ipField.clear();
+        subnetsField.clear();
+        hostsBox.getChildren().clear();
+        resultArea.clear();
     }
 }

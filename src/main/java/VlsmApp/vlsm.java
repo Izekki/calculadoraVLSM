@@ -1,8 +1,7 @@
-package vlsm;// VlsmApp.java
+package VlsmApp;// VlsmApp.java
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class vlsm extends Application {
@@ -15,7 +14,7 @@ public class vlsm extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Calculadora VLSM");
         var root = new VentanaVLSM();
-        Scene scene = new Scene(root, 500, 430);
+        Scene scene = new Scene(root, 500, 450);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
